@@ -1,45 +1,21 @@
-import type {
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-  UserInfoResponse,
-} from '../types';
+import axiosClient, { tokenStorage } from "./axiosClient";
+import type { AccessTokenRsponse, CurrentUser, LoginRequest, RegisterRequest } from "../types/auth";
 
-import apiClient from './apiClient';
-
-export async function login(
-  request: LoginRequest,
-): Promise<LoginResponse> {
-  const response = await apiClient.post<LoginResponse>(
-    '/login',
-    request,
-    {
-      params: {
-        useCookies: false,
-        useSessionCookies: false,
-      },
-    },
-  );
-
-  return response.data;
+export const login = async (data: LoginRequest): Promise<AccessTokenRsponse> => {
+    const response = await axiosClient.post<AccessTokenRsponse>('/login', data);
+    tokenStorage.setTokens(response.data);
+    return response.data;
 }
 
-export async function register(
-  request: RegisterRequest,
-): Promise<void> {
-  await apiClient.post('/register', request);
+export const register = (data: RegisterRequest): Promise<void> => {
+    return axiosClient.post(`/api/account/register`, data);
 }
 
-export async function getCurrentUserInfo(): Promise<UserInfoResponse> {
-  const response = await apiClient.get<UserInfoResponse>(
-    '/manage/info',
-  );
-
-  return response.data;
+export const logout = (): void => {
+    tokenStorage.clearTokens();
 }
 
-export function logout(): void {
-  window.dispatchEvent(
-    new CustomEvent('auth:logout'),
-  );
+export const getCurrentUser = async (): Promise<CurrentUser> => {
+    const response = await axiosClient.get<CurrentUser>('/api/account/me');
+    return response.data;
 }

@@ -1,140 +1,51 @@
-import { Link, useLocation, useNavigate } from "react-router";
-import { z } from "zod";
-import { useAuth } from "../auth/useAuth";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { getApiError } from "../api/apiErrors";
+import { useState, type SyntheticEvent } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const loginSchema = z.object({
-    email: z.string().trim().min(1, 'Email address is required.').email('Enter a valid email address'),
-    password: z.string().min(1, 'Password is required.')
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-interface LoginLocationState{
-    from?: string,
-    registrationCompleted?: boolean;
-}
-
-function LoginPage() {
-    const navigate = useNavigate();
-    const location = useLocation();
+export default function LoginPage(){
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { login } = useAuth();
+    const navigate = useNavigate();
 
-    const [submitError, setSubmitError] = useState<string | null>();
-
-    const locationState = location.state as LoginLocationState | null;
-
-    const destination = locationState?.from?.startsWith('/') ? locationState.from : '/tickets';
-
-    const {register, handleSubmit, fromState: {errors, isSubmitting}} = useForm<LoginFormValues>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: {
-            email: '',
-            password: ''
-        }
-    });
-
-    async function onSubmit(value: LoginFormValues) : Promise<void> {
-        setSubmitError(null);
-
+    const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
         try{
-            await login({
-                email: value.email,
-                password: value.password,
-            });
-
-            navigate(destination, {
-                replace: true
-            });
-        }catch (error: unknown){
-            const apiError = getApiError(error);
-
-            setSubmitError(apiError.message);
+            await login({email, password});
+            navigate('/');
+        }catch{
+            setError('Bad e-mail or password.');
+        }finally{
+            setIsSubmitting(false);
         }
-    }
+    };
 
-    return (
-        <main className="auth-page">
-            <section className="auth-card" aria-labelledby="login-heading">
-                <div className="auth-card_brand" aria-hidden="true">
-                    CS
-                </div>
-
-                <p className="eyebrow">Cloud Support Ticket Manager</p>
-
-                <h1 id="login-heading">Sing in</h1>
-
-                <p className="auth-card__description">
-                    Sign in to manage Azure support ticket.
-                </p>
-
-                {locationState?.registrationCompleted && (
-                    <div className="form-message form-message--success" role="staus">
-                        Account created successfully. You can now sign in.
+    return(
+        <div className="d-flex justifi-content-center mt-5">
+            <div className="card p-4" style={{minWidth: 350}}>
+                <h1 className="h4 mb-3">Login</h1>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="email" className="form-label">E-mail</label>
+                        <input id="email" type="email" className="from-control" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     </div>
-                )}
-
-                {submitError && (
-                    <div className="form-message form-message--error" role="alert">
-                        {submitError}
+                    <div className="mb-3">
+                        <label htmlFor="password" className="form-label">Password</label>
+                        <input id="password" type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required/>
                     </div>
-                )}
-
-                <form className="auth-form" noValidate onSubmit={handleSubmit(onSubmit)}>
-                    <div className="form-fiel">
-                        <label htmlFor="login-email">
-                            Email address
-                        </label>
-                        <input id="login-email" 
-                            type="email" 
-                            aria-invalid={Boolean(errors.email)} 
-                            aria-describedby={ errors.email ? 'login-email-error' : undefined } 
-                            {...register('email')} />
-
-                        {errors.email && (
-                            <p className="form-field__error" id="login-email-error" role="alert">
-                                {errors.email.message}
-                            </p>
-                        )}
-                    </div>
-                    
-                    <div className="form-field">
-                        <label htmlFor="login-password">
-                            Password
-                        </label>
-
-                        <input 
-                            id="login-password"
-                            type="password"
-                            autoComplete="current password"
-                            aria-invalid={Boolean(errors.password)}
-                            aria-describedby={ errors.password ? 'login-password-error' : undefined }
-                            {...register('password')} />
-
-                        {errors.password && (
-                            <p className="form-field__error" id="login-password-error" role="alert">
-                                {errors.password.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <button className="button button--primary auth-form__submit" type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Signing in...' : 'Sign in'}
+                    {error && <div className="alert alert-danger py-2">{error}</div>}
+                    <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
+                        {isSubmitting ? 'Login in...' : 'Login'}
                     </button>
                 </form>
-
-                <p className="auth-card__footer">
-                    Do not have an account?{' '}
-                    <Link className="text-link" to='/register'>
-                        Create account
-                    </Link>
+                <p className="mt-3 mb-0 text-center">
+                    You don't have account? <Link to="/register">Register</Link>
                 </p>
-            </section>
-        </main>
+            </div>
+        </div>
     );
 }
-
-export default LoginPage;
