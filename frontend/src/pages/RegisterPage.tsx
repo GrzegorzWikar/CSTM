@@ -1,7 +1,7 @@
 import { useState, type SyntheticEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { register } from "../api/authApi";
+import { register } from "../api/AuthApi";
 
 interface ValidationProblemResponse {
     errors?: Record<string, string[]>;
@@ -43,7 +43,7 @@ export default function RegisterPage(){
     };
 
     return(
-        <div className="d-flex justifi-content-center mt-5">
+        <div className="d-flex justify-content-center mt-5">
             <div className="card p-4" style={{minWidth: 350}}>
                 <h1 className="h4 mb-3">Register</h1>
                 <form onSubmit={handleSubmit}>

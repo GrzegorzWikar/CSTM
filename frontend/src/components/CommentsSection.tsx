@@ -1,4 +1,4 @@
-import { use, useEffect, useState, type SyntheticEvent } from "react";
+import { useEffect, useState, type SyntheticEvent } from "react";
 import { getComments, createComment, updateComment } from "../api/CommentApi";
 import type { TicketCommentResponse } from "../types/Comment";
 import { useAuth } from "../context/AuthContext";

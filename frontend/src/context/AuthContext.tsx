@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { getCurrentUser, login as loginRequest, logout as logoutRequest } from "../api/authApi";
+import { getCurrentUser, login as loginRequest, logout as logoutRequest } from "../api/AuthApi";
 import { tokenStorage } from "../api/axiosClient";
 import type { CurrentUser, LoginRequest } from "../types/auth";
 

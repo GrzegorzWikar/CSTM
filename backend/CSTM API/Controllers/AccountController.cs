@@ -6,11 +6,12 @@ using System.Security.Claims;
 
 namespace CSTM_API.Controllers
 {
+    public record RegisterUserRequest(string Email, string Password);
+
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
-
         private readonly UserManager<ApplicationUser> _userManager;
 
         public AccountController(UserManager<ApplicationUser> userManager)
@@ -24,8 +25,8 @@ namespace CSTM_API.Controllers
         {
             var user = new ApplicationUser
             {
-                UserName = request.UserName,
-                Email = request.Email,
+                UserName = request.Email,
+                Email = request.Email
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -50,7 +51,7 @@ namespace CSTM_API.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId == null)
+            if (userId is null)
             {
                 return Unauthorized();
             }

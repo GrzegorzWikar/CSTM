@@ -1,4 +1,4 @@
-import { SeverityLables, type Severity } from "../types/Enums";
+import { SeverityLabels, type Severity } from "../types/Enums";
 
 const severityColors: Record<Severity, string> = {
     0: 'danger',
@@ -8,5 +8,5 @@ const severityColors: Record<Severity, string> = {
 }
 
 export default function SeverityBadge({severity} : {severity: Severity}) {
-    return <span className={`badge text-bg-${severityColors[severity]}`}>{SeverityLables[severity]}</span> 
+    return <span className={`badge text-bg-${severityColors[severity]}`}>{SeverityLabels[severity]}</span> 
 }
