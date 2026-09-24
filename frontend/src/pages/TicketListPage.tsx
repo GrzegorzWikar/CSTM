@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getTickets } from "../api/TicketApi";
 import type { TicketFilterParameters, TicketResponse } from "../types/Ticket";
 import type { PagedResult } from "../types/Common";
-import { StatusLabels, SeverityLables, type Status, type Severity } from "../types/Enums";
+import { StatusLabels, SeverityLabels, type Status, type Severity } from "../types/Enums";
 import StatusBadge from '../components/StatusBadge';
 import SeverityBadge from "../components/SeverityBadge";
 import Pagination from "../components/Pagination";
@@ -74,7 +74,12 @@ export default function TicketListPage() {
 
     return (
         <div>
-            <h1 className="h3 mb-3">Incidents</h1>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h1 className="h3 mb-3">Incidents</h1>
+                <Link to='/tickets/new' className="btn btn-primary btn-sm">
+                    New Ticket
+                </Link>
+            </div>
             <form className="row g-2 mb-3" onSubmit={applyFilters}>
                 <div className="col-md-3">
                     <input type="text" className="form-control" placeholder="Title" value={draftTitle} onChange={(e) => setDraftTitle(e.target.value)}/>
@@ -84,7 +89,7 @@ export default function TicketListPage() {
                 </div>
                 <div className="col-md-2">
                     <select className="form-select" value={draftStatus} onChange={(e) => setDraftStatus(e.target.value)}>
-                        <option value="">Statuses</option>
+                        <option value="">All Status</option>
                         {Object.entries(StatusLabels).map(([value, label]) => (
                             <option key={value} value={value}>
                                 {label}
@@ -94,10 +99,10 @@ export default function TicketListPage() {
                 </div>
                 <div className="col-md-2">
                     <select className="form-select" value={draftSeverity} onChange={(e) => setDraftSeverity(e.target.value)}>
-                        <option value=''>Severities</option>
-                        {Object.entries(SeverityLables).map(([value, lable]) => (
+                        <option value=''>All Severity</option>
+                        {Object.entries(SeverityLabels).map(([value, label]) => (
                             <option key={value} value={value}>
-                                {lable}
+                                {label}
                             </option>
                         ))}
                     </select>
@@ -138,7 +143,7 @@ export default function TicketListPage() {
                                         <td>
                                             <StatusBadge status={ticket.status}/>
                                         </td>
-                                        <td>{new Date(ticket.createAt).toLocaleString('en-GB')}</td>
+                                        <td>{new Date(ticket.createdAt).toLocaleString('en-GB')}</td>
                                     </tr>
                                 ))
                             ) : (

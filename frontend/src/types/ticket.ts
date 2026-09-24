@@ -9,8 +9,8 @@ export interface TicketResponse{
     status: Status;
     createByUserId: string;
     assignedToUserId: string | null;
-    createAt: string;
-    updateAt: string | null;
+    createdAt: string;
+    updatedAt: string | null;
     resolvedAt: string | null;
 }
 

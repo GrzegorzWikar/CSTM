@@ -5,7 +5,7 @@ export enum Severity {
     Sev4 = 3,
 }
 
-export const SeverityLables: Record<Severity, string> ={
+export const SeverityLabels: Record<Severity, string> ={
     [Severity.Sev1]: 'Sev 1',
     [Severity.Sev2]: 'Sev 2',
     [Severity.Sev3]: 'Sev 3',

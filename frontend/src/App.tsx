@@ -4,6 +4,8 @@ import PrivateRoute from './routes/PrivateRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import TicketListPage from './pages/TicketListPage';
+import TicketDetailsPage from './pages/TicketDetailsPage';
+import CreateTicketPage from './pages/CreateTicketPage';
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<PrivateRoute />}>
             <Route path="/" element={<TicketListPage />} />
+            <Route path='/tickets/new' element={<CreateTicketPage />}/>
+            <Route path='/tickets/:id' element={<TicketDetailsPage />} />
           </Route>
         </Route>
       </Routes>
