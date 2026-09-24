@@ -7,6 +7,8 @@ import StatusBadge from "../components/StatusBadge";
 import SeverityBadge from "../components/SeverityBadge";
 import CommentsSection from "../components/CommentsSection";
 import HistoryLog from "../components/HistoryLog";
+import { getUsers } from "../api/userApi";
+import type { UserSummary } from "../types/user";
 
 export default function TicketDetailsPage() {
     const { id } = useParams<{ id: string}>();
@@ -23,6 +25,7 @@ export default function TicketDetailsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [users, setUsers] = useState<UserSummary[] | null>(null);
 
     const loadTicket = async () => {
         setIsLoading(true);
@@ -49,6 +52,12 @@ export default function TicketDetailsPage() {
         }
         loadTicket();
     },[ticketId]);
+
+    useEffect(() => {
+        getUsers()
+        .then(setUsers)
+        .catch(() => setUsers(null));
+    },[])
 
     const handleUpdate = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -131,8 +140,19 @@ export default function TicketDetailsPage() {
                             </select>
                         </div>
                         <div className="col-md-6">
-                            <label className="form-label">Assigned User Id</label>
-                            <input type="text" className="form-control" placeholder="GUID if empty there is no user assigned" value={assignedToUserId} onChange={(e) => setAssignedToUserId(e.target.value)}/>
+                            <label className="form-label">Assigned User</label>
+                            {users ? (
+                                <select className="form-select" value={assignedToUserId} onChange={(e) => setAssignedToUserId(e.target.value)}>
+                                    <option value="">No user assigned</option>
+                                    {users.map((u) => (
+                                        <option key={u.id} value={u.id}>
+                                            {u.email}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input type="text" className="form-control" placeholder="GUID if empty there is no user assigned" value={assignedToUserId} onChange={(e) => setAssignedToUserId(e.target.value)}/>
+                            )}
                         </div>
                         <div className="col-12 d-flex align-items-center gap-3">
                             <button type="submit" className="btn btn-primary" disabled={isSaving}>

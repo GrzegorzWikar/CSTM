@@ -37,11 +37,11 @@ namespace CSTM_API.Services
             return ticketComments.Select(_ticketCommentMapper.MapToTicketCommentResponse);
         }
 
-        public async Task<TicketCommentResponse> UpdateTicketCommentAsync(UpdateTicketCommentRequest updatedComment)
+        public async Task<TicketCommentResponse> UpdateTicketCommentAsync(int ticketId, UpdateTicketCommentRequest updatedComment)
         {
             TicketComment? ticketComment = await _context.TicketComments.FindAsync(updatedComment.Id);
 
-            if (ticketComment == null)
+            if (ticketComment == null || ticketComment.TicketId != ticketId)
             {
                 throw new Exception("Ticket comment not found");
             }

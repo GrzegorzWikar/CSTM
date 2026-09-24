@@ -96,8 +96,13 @@ namespace CSTM_API.Controllers
         // PUT: api/Ticket/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<TicketResponse>> PutTicket(UpdateTicketRequest request)
+        public async Task<ActionResult<TicketResponse>> PutTicket(int id, UpdateTicketRequest request)
         {
+            if(id != request.Id)
+            {
+                return BadRequest("Id in the URL is diffrent from Id body request");
+            }
+
             try
             {
                 await _ticketService.UpdateTicketAsync(request);
@@ -141,8 +146,15 @@ namespace CSTM_API.Controllers
         [HttpPut("{ticketId}/comments")]
         public async Task<ActionResult<TicketCommentResponse>> UpdateTicketCommentByTicketId(int ticketId, UpdateTicketCommentRequest request)
         {
-
-            return Ok(await _ticketCommentsService.UpdateTicketCommentAsync(request));
+            try
+            {
+                return Ok(await _ticketCommentsService.UpdateTicketCommentAsync(request));
+            }
+            catch (Exception) 
+            {
+                return NotFound("Ther is no comment for this ticket.");
+            }
+            
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace CSTM_API.Controllers
@@ -71,6 +72,17 @@ namespace CSTM_API.Controllers
                 email = user.Email,
                 roles
             });
+        }
+
+        [Authorize(Roles = "Support,Admin")]
+        [HttpGet("users")]
+        public async Task<ActionResult> GetUsers()
+        {
+            var users = await _userManager.Users
+                                .OrderBy(u => u.Email)
+                                .Select(u => new {id = u.Id, email = u.Email})
+                                .ToListAsync();
+            return Ok(users);
         }
     }
 }

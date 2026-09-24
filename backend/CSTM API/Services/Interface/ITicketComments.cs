@@ -7,7 +7,7 @@ namespace CSTM_API.Services.Interface
     {
 
         Task<IEnumerable<TicketCommentResponse>> GetTicketCommentsByTicketIdAsync(int ticketId);
-        Task<TicketCommentResponse> UpdateTicketCommentAsync(UpdateTicketCommentRequest updatedComment);
+        Task<TicketCommentResponse> UpdateTicketCommentAsync(int ticketId, UpdateTicketCommentRequest updatedComment);
         Task<TicketCommentResponse> CreateTicketCommentAsync(string userId, int ticketId, CreateTicketCommentRequest newComment);
     }
 }
