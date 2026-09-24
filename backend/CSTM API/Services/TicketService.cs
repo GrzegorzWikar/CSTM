@@ -75,9 +75,12 @@ namespace CSTM_API.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<TicketResponse> GetTicketByTicketIdAsync(int ticketId)
+        public async Task<TicketResponse?> GetTicketByTicketIdAsync(int ticketId)
         {
-            Ticket ticket = await _context.Tickets.FirstAsync(x => x.Id == ticketId);
+            Ticket? ticket = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId);
+
+            if (ticket is null) return null; 
+
             return _ticketMapper.MapToTicketResponse(ticket);
         }
 

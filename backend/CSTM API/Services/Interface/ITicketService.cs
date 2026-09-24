@@ -9,7 +9,7 @@ namespace CSTM_API.Services.Interface
     {
         Task<TicketResponse> CreateTicketAsync(CreateTicketRequest ticketRequest);
         Task UpdateTicketAsync(UpdateTicketRequest ticketRequest);
-        Task<TicketResponse> GetTicketByTicketIdAsync(int ticketId);
+        Task<TicketResponse?> GetTicketByTicketIdAsync(int ticketId);
         Task<IEnumerable<TicketResponse>> GetTicketsByStatusAsync(Status status);
         Task<PagedResoult<TicketResponse>> GetTicketsAsync(TicketFilterParameters filters, CancellationToken cancellationToken);
     }

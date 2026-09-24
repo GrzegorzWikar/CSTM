@@ -7,6 +7,6 @@ namespace CSTM_API.Services.Interface
     public interface ITicketHistoryService
     {
         Task AddHistoryAsync(UpdateTicketRequest request, Ticket ticket, PropertyInfo propertyInfo);
-        Task<List<TicketHistory>> GetHistoryByTicketIdAsync(int ticketId);
+        Task<List<TicketHistoryResponse>> GetHistoryByTicketIdAsync(int ticketId);
     }
 }

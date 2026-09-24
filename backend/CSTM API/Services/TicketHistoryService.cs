@@ -43,12 +43,20 @@ namespace CSTM_API.Services
             return Task.CompletedTask;
         }
 
-        public async Task<List<TicketHistory>> GetHistoryByTicketIdAsync(int ticketId)
+        public async Task<List<TicketHistoryResponse>> GetHistoryByTicketIdAsync(int ticketId)
         {
             return await _context.TicketHistories
                 .AsNoTracking()
                 .Where(x => x.TicketId == ticketId)
                 .OrderByDescending(x => x.ChangeAt)
+                .Select(x =>  new TicketHistoryResponse
+                {
+                    Id = x.Id,
+                    OldStatus = x.OldStatus,
+                    NewStatus = x.NewStatus,
+                    ChangeByUserId = x.ChangeByUserId,
+                    ChangeAt = x.ChangeAt
+                })
                 .ToListAsync();
         }
     }
