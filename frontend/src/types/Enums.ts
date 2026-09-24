@@ -21,7 +21,7 @@ export enum Status{
     Closed = 5,
 }
 
-export const StatusLabel: Record<Status, string> = {
+export const StatusLabels: Record<Status, string> = {
     [Status.New]: 'New',
     [Status.Assigned]: 'Assigned',
     [Status.InProgress]: 'In Progress',
