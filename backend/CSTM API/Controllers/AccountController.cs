@@ -8,6 +8,7 @@ using System.Security.Claims;
 namespace CSTM_API.Controllers
 {
     public record RegisterUserRequest(string Email, string Password);
+    public record AssignRoleRequest(string UserId, string Role);
 
     [Route("api/[controller]")]
     [ApiController]
@@ -83,6 +84,26 @@ namespace CSTM_API.Controllers
                                 .Select(u => new {id = u.Id, email = u.Email})
                                 .ToListAsync();
             return Ok(users);
+        }
+
+        [Authorize(Roles="Admin")]
+        [HttpPost("assign-role")]
+        public async Task<ActionResult> AssignRole(AssignRoleRequest request)
+        {
+            var validRoles = new[] { "User", "Support", "Admin" };
+            if (!validRoles.Contains(request.Role)) 
+            {
+                return BadRequest($"Bad role. Allowed are: {validRoles}");
+            }
+
+            var user = await _userManager.FindByIdAsync(request.UserId);
+            if (user is null) return NotFound("User not found");
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            await _userManager.AddToRoleAsync(user, request.Role);
+
+            return Ok();
         }
     }
 }

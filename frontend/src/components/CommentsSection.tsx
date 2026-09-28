@@ -1,13 +1,16 @@
 import { useEffect, useState, type SyntheticEvent } from "react";
 import { getComments, createComment, updateComment } from "../api/CommentApi";
 import type { TicketCommentResponse } from "../types/Comment";
+import type { UserSummary } from "../types/user";
+import { resolveUserEmail } from "../utils/users";
 import { useAuth } from "../context/AuthContext";
 
 interface CommentSectionProps {
     ticketId: number;
+    users: UserSummary[] | null;
 }
 
-export default function CommentsSection({ticketId}: CommentSectionProps){
+export default function CommentsSection({ticketId, users}: CommentSectionProps){
     const { user } = useAuth();
     const [comments, setComments] = useState<TicketCommentResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -87,6 +90,7 @@ export default function CommentsSection({ticketId}: CommentSectionProps){
                                     <div>
                                         <div className="d-flex justify-content-between">
                                             <small className="text-muted">
+                                                {resolveUserEmail(users, comment.userId)} •{' '}
                                                 {new Date(comment.createdAt).toLocaleString('en-GB')}
                                             </small>
                                             {user?.id === comment.userId && (

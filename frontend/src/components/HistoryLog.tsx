@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { getTicketHistory } from '../api/HistoryApi';
 import type { TicketHistoryResponse } from '../types/History';
-
+import type { UserSummary } from '../types/user';
+import { resolveUserEmail } from '../utils/users';
 interface HistoryLogProps {
   ticketId: number;
+  users: UserSummary[] | null;
 }
 
-export default function HistoryLog({ ticketId }: HistoryLogProps) {
+export default function HistoryLog({ ticketId, users }: HistoryLogProps) {
   const [history, setHistory] = useState<TicketHistoryResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,8 +21,8 @@ export default function HistoryLog({ ticketId }: HistoryLogProps) {
         const data = await getTicketHistory(ticketId);
         setHistory(data);
       } catch (err) {
-        console.error('Błąd pobierania historii ticketu:', err);
-        setError('Nie udało się pobrać historii zmian.');
+        console.error('Error of fetching Ticket History:', err);
+        setError('Unable to fetch Ticket History');
       } finally {
         setIsLoading(false);
       }
@@ -31,19 +33,20 @@ export default function HistoryLog({ ticketId }: HistoryLogProps) {
   return (
     <div className="card">
       <div className="card-body">
-        <h2 className="h5 mb-3">Historia zmian</h2>
+        <h2 className="h5 mb-3">Ticket History</h2>
         {isLoading ? (
-          <p>Ładowanie...</p>
+          <p>Loading...</p>
         ) : error ? (
           <div className="alert alert-danger py-2">{error}</div>
         ) : history.length === 0 ? (
-          <p className="text-muted">Brak historii zmian.</p>
+          <p className="text-muted">No Ticket History</p>
         ) : (
           <ul className="list-group list-group-flush">
             {history.map((entry) => (
               <li key={entry.id} className="list-group-item px-0">
                 <small className="text-muted d-block">
-                  {new Date(entry.changedAt).toLocaleString('pl-PL')}
+                  {resolveUserEmail(users, entry.changedByUserId)} •{' '}
+                  {new Date(entry.changedAt).toLocaleString('en-GB')}
                 </small>
                 <div>
                   {entry.oldStatus} → {entry.newStatus}

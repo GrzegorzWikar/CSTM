@@ -95,6 +95,7 @@ namespace CSTM_API.Controllers
 
         // PUT: api/Ticket/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles="Support,Admin")]
         [HttpPut("{id:int}")]
         public async Task<ActionResult<TicketResponse>> PutTicket(int id, UpdateTicketRequest request)
         {
@@ -116,6 +117,7 @@ namespace CSTM_API.Controllers
         }
 
         // GET: api/Ticket/5/history
+        [Authorize(Roles="Support,Admin")]
         [HttpGet("{id}/history")]
         public async Task<ActionResult<IEnumerable<TicketHistoryResponse>>> GetTicketHistoryByTicketId(int id)
         {
@@ -124,12 +126,14 @@ namespace CSTM_API.Controllers
             return Ok(history);
         }
 
+        [Authorize(Roles = "Support,Admin")]
         [HttpGet("{ticketId}/comments")]
         public async Task<ActionResult<IEnumerable<TicketCommentResponse>>> GetTicketCommentsByTicketId(int ticketId)
         {
             return Ok(await _ticketCommentsService.GetTicketCommentsByTicketIdAsync(ticketId));
         }
 
+        [Authorize(Roles = "Support,Admin")]
         [HttpPost("{ticketId}/comments")]
         public async Task<ActionResult> CreateTicketCommentByTicketId(int ticketId, CreateTicketCommentRequest ticketCommentRequest)
         {
@@ -143,12 +147,13 @@ namespace CSTM_API.Controllers
             return Ok(await _ticketCommentsService.CreateTicketCommentAsync(userId, ticketId, ticketCommentRequest));
         }
 
+        [Authorize(Roles = "Support,Admin")]
         [HttpPut("{ticketId}/comments")]
         public async Task<ActionResult<TicketCommentResponse>> UpdateTicketCommentByTicketId(int ticketId, UpdateTicketCommentRequest request)
         {
             try
             {
-                return Ok(await _ticketCommentsService.UpdateTicketCommentAsync(request));
+                return Ok(await _ticketCommentsService.UpdateTicketCommentAsync(ticketId, request));
             }
             catch (Exception) 
             {
