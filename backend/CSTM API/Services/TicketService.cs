@@ -84,21 +84,10 @@ namespace CSTM_API.Services
             return _ticketMapper.MapToTicketResponse(ticket);
         }
 
-        public async Task<IEnumerable<TicketResponse>> GetTicketsByStatusAsync(Status status)
-        {
-            IEnumerable<Ticket> tickets = await _context.Tickets.Where(x => x.Status == status).ToListAsync();
-            
-            IEnumerable<TicketResponse> ticketResponses = [];
-            foreach (var ticket in tickets)
-            {
-                ticketResponses.Append(_ticketMapper.MapToTicketResponse(ticket));
-            }
-            return ticketResponses;
-        }
-
-        public async Task<TicketResponse> CreateTicketAsync(CreateTicketRequest ticketRequest)
+        public async Task<TicketResponse> CreateTicketAsync(string userId, CreateTicketRequest ticketRequest)
         {
             Ticket ticket = _ticketMapper.ToEntity(ticketRequest);
+            ticket.CreatedByUserId = userId;
 
             await _context.Tickets.AddAsync(ticket);
             await _context.SaveChangesAsync();

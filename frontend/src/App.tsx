@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import TicketListPage from './pages/TicketListPage';
 import TicketDetailsPage from './pages/TicketDetailsPage';
 import CreateTicketPage from './pages/CreateTicketPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path='/tickets/new' element={<CreateTicketPage />}/>
             <Route path='/tickets/:id' element={<TicketDetailsPage />} />
           </Route>
+          <Route path='*' element={<NotFoundPage />}/> 
         </Route>
       </Routes>
     </BrowserRouter>

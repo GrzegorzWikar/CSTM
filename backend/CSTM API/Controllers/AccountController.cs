@@ -1,4 +1,5 @@
-﻿using CSTM_API.Models;
+﻿using Azure.Core;
+using CSTM_API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace CSTM_API.Controllers
         {
             _userManager = userManager;
         }
+
 
         [AllowAnonymous]
         [HttpPost("register")]

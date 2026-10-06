@@ -83,7 +83,7 @@ namespace CSTM_API.Controllers
                 return Unauthorized();
             }
 
-            TicketResponse ticketResponse = await _ticketService.CreateTicketAsync(request);
+            TicketResponse ticketResponse = await _ticketService.CreateTicketAsync(userId, request);
 
             if (ticketResponse == null)
             {
