@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using CSTM_API.Models;
 
 namespace CSTM_API.Data
 {
@@ -34,6 +35,53 @@ namespace CSTM_API.Data
                 }
                 
             }
+        }
+
+        public static async Task SeedDefaultAdminAsync(IServiceProvider services, IConfiguration configuration)
+        {
+            var adminEmail = configuration["Seed:AdminEmail"];
+            var adminPassword = configuration["Seed:AdminPassword"];
+
+            if(string.IsNullOrWhiteSpace(adminEmail) || string.IsNullOrWhiteSpace(adminPassword))
+            {
+                return;
+            }
+
+            using var scope = services.CreateScope();
+
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var admins = await userManager.GetUsersInRoleAsync("Admin");
+
+            if (admins.Count > 0)
+            {
+                return;
+            }
+
+            var existingUser = await userManager.FindByEmailAsync(adminEmail);
+
+            if(existingUser is not null)
+            {
+                await userManager.AddToRoleAsync(existingUser, "Admin");
+                return;
+            }
+
+            var adminUser = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Default Admin was not created: {errors}");
+            }
+
+            await userManager.AddToRoleAsync(adminUser, "Admin");
         }
     }
 }

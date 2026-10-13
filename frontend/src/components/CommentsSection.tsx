@@ -4,6 +4,7 @@ import type { TicketCommentResponse } from "../types/Comment";
 import type { UserSummary } from "../types/user";
 import { resolveUserEmail } from "../utils/users";
 import { useAuth } from "../context/AuthContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface CommentSectionProps {
     ticketId: number;
@@ -73,7 +74,7 @@ export default function CommentsSection({ticketId, users}: CommentSectionProps){
                     </button>
                 </form>
                 {isLoading ? (
-                    <p>Loading...</p>
+                    <LoadingSpinner/>
                 ) :  comments.length === 0 ? (
                     <p className="text-muted">No Comments</p>
                 ) : (

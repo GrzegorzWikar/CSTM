@@ -3,6 +3,7 @@ import { getTicketHistory } from '../api/HistoryApi';
 import type { TicketHistoryResponse } from '../types/History';
 import type { UserSummary } from '../types/user';
 import { resolveUserEmail } from '../utils/users';
+import LoadingSpinner from './LoadingSpinner';
 interface HistoryLogProps {
   ticketId: number;
   users: UserSummary[] | null;
@@ -35,7 +36,7 @@ export default function HistoryLog({ ticketId, users }: HistoryLogProps) {
       <div className="card-body">
         <h2 className="h5 mb-3">Ticket History</h2>
         {isLoading ? (
-          <p>Loading...</p>
+          <LoadingSpinner/>
         ) : error ? (
           <div className="alert alert-danger py-2">{error}</div>
         ) : history.length === 0 ? (

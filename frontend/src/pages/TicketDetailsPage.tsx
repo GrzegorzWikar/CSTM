@@ -11,6 +11,7 @@ import { getUsers } from '../api/userApi';
 import type { UserSummary } from '../types/user';
 import { resolveUserEmail } from '../utils/users';
 import { useAuth } from '../context/AuthContext';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function TicketDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -89,7 +90,7 @@ export default function TicketDetailsPage() {
     }
   };
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <LoadingSpinner/>
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!ticket) return null;
 

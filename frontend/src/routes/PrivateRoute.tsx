@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface PrivateRouteProps {
     allowedRoles?: string[];
@@ -9,7 +10,7 @@ export default function PrivateRoute({ allowedRoles }: PrivateRouteProps) {
     const { user, isLoading, hasRole } = useAuth();
 
     if (isLoading) {
-        return <div className="text-center mt-5">Loading...</div>;
+        return <LoadingSpinner/>
     }
 
     if(!user){

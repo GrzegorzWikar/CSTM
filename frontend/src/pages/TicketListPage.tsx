@@ -7,6 +7,7 @@ import { StatusLabels, SeverityLabels, type Status, type Severity } from "../typ
 import StatusBadge from '../components/StatusBadge';
 import SeverityBadge from "../components/SeverityBadge";
 import Pagination from "../components/Pagination";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const PAGE_SIZE = 10;
 
@@ -117,7 +118,7 @@ export default function TicketListPage() {
                 </div>
             </form>
             {error && <div className="alert alert-danger">{error}</div>}
-            {isLoading ? (<p>Loading...</p>) : (
+            {isLoading ? (<LoadingSpinner/>) : (
                 <>
                     <table className="table table-hover align-middle">
                         <thead>
