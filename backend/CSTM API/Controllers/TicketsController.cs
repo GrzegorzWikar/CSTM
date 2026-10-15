@@ -104,9 +104,13 @@ namespace CSTM_API.Controllers
                 return BadRequest("Id in the URL is diffrent from Id body request");
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId is null) return Unauthorized();
+
             try
             {
-                await _ticketService.UpdateTicketAsync(request);
+                await _ticketService.UpdateTicketAsync(userId, request);
             }
             catch(DbUpdateException ex)
             {

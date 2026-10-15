@@ -3,6 +3,7 @@ using CSTM_API.DTO_s;
 using CSTM_API.DTO_s.Requests;
 using CSTM_API.DTO_s.Responses;
 using CSTM_API.Enum;
+using CSTM_API.Events;
 using CSTM_API.Mappers;
 using CSTM_API.Models;
 using CSTM_API.Services.Interface;
@@ -14,17 +15,21 @@ namespace CSTM_API.Services
     {
         private readonly ITicketHistoryService _ticketHistoryService;
         private readonly ApplicationDbContext _context;
+        private readonly ITicketEventPublisher _eventPublisher;
+        private readonly ILogger _logger;
         private readonly TicketMapper _ticketMapper;
         private const int MaxPageSize = 100;
 
-        public TicketService(ITicketHistoryService ticketHistoryService, ApplicationDbContext context)
+        public TicketService(ITicketHistoryService ticketHistoryService, ApplicationDbContext context, ITicketEventPublisher eventPublisher, ILogger<TicketService> logger)
         {
             _ticketHistoryService = ticketHistoryService;
             _context = context;
+            _eventPublisher = eventPublisher;
+            _logger = logger;
             _ticketMapper = new TicketMapper();
         }
 
-        public async Task UpdateTicketAsync(UpdateTicketRequest request)
+        public async Task UpdateTicketAsync(string userId, UpdateTicketRequest request)
         {
             var ticket = await _context.Tickets.FindAsync(request.Id);
 
@@ -32,6 +37,12 @@ namespace CSTM_API.Services
             {
                 throw new KeyNotFoundException($"Ticket with ID {request.Id} not found.");
             }
+
+            string? newAssignee = string.IsNullOrWhiteSpace(request.AssignedToUserId) ? null : request.AssignedToUserId;
+            Status oldStatus = ticket.Status;
+            string? oldAssignee = ticket.AssignedToUserId;
+            bool statusChanged = false;
+            bool assigneeChanged = false;
 
             if (request.ServiceName != ticket.ServiceName)
             {
@@ -59,21 +70,28 @@ namespace CSTM_API.Services
                 if (request.Status == Status.Resolved) ticket.ResolvedAt = DateTime.UtcNow;
 
                 ticket.Status = request.Status;
+                statusChanged = true;
             }
 
-            if (!request.AssignedToUserId.Equals(ticket.AssignedToUserId))
-            {
+            if (newAssignee != ticket.AssignedToUserId) 
+            { 
 
                 var property = ticket.GetType().GetProperty(nameof(ticket.AssignedToUserId));
                 if (property != null) await _ticketHistoryService.AddHistoryAsync(request, ticket, property);
 
-                ticket.AssignedToUserId = request.AssignedToUserId;
+                ticket.AssignedToUserId = newAssignee;
+                assigneeChanged  = true;
             }
 
             ticket.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            if (statusChanged) await PublishSafelyAsync(CreateEvent(TicketEventTypes.StatusChanged, ticket, userId, oldStatus.ToString(), ticket.Status.ToString()));
+
+            if (assigneeChanged) await PublishSafelyAsync(CreateEvent(TicketEventTypes.Assigned, ticket, userId, oldAssignee, ticket.AssignedToUserId));
         }
+
 
         public async Task<TicketResponse?> GetTicketByTicketIdAsync(int ticketId)
         {
@@ -92,9 +110,28 @@ namespace CSTM_API.Services
             await _context.Tickets.AddAsync(ticket);
             await _context.SaveChangesAsync();
 
+            await PublishSafelyAsync(CreateEvent(TicketEventTypes.Created, ticket, userId));
+
             TicketResponse ticketResponse = _ticketMapper.MapToTicketResponse(ticket);
 
             return ticketResponse;
+        }
+
+        private static TicketEvent CreateEvent(string eventType, Ticket ticket, string actorUserId, string? oldValue = null, string? newValue = null)
+        {
+            return new TicketEvent(Guid.NewGuid(), eventType, ticket.Id, ticket.ServiceName, ticket.Severity, ticket.Status, actorUserId, DateTime.UtcNow, oldValue, newValue);
+        }
+
+        private async Task PublishSafelyAsync(TicketEvent ticketEvent)
+        {
+            try
+            {
+                await _eventPublisher.PublishAsync(ticketEvent);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "Failed to publish the {EventType} event for ticket {TicketId}.", ticketEvent.EventType, ticketEvent.TicketId);
+            }
         }
 
         public async Task<PagedResoult<TicketResponse>> GetTicketsAsync(TicketFilterParameters filters, CancellationToken cancellationToken)

@@ -7,7 +7,7 @@ namespace CSTM_API.Services.Interface
     public interface ITicketService
     {
         Task<TicketResponse> CreateTicketAsync(string userId, CreateTicketRequest ticketRequest);
-        Task UpdateTicketAsync(UpdateTicketRequest ticketRequest);
+        Task UpdateTicketAsync(string userId, UpdateTicketRequest ticketRequest);
         Task<TicketResponse?> GetTicketByTicketIdAsync(int ticketId);
         Task<PagedResoult<TicketResponse>> GetTicketsAsync(TicketFilterParameters filters, CancellationToken cancellationToken);
     }

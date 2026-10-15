@@ -7,6 +7,8 @@ using CSTM_API.Services.Interface;
 using CSTM_API.Services;
 using CSTM_API.Mappers;
 using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using CSTM_API.Services.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +43,20 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<ITicketHistoryService, TicketHistoryService>();
 builder.Services.AddScoped<ITicketComments, TicketCommentService>();
+
+builder.Services.Configure<ServiceBusOptions>(builder.Configuration.GetSection(ServiceBusOptions.SectionName));
+var serviceBusOptions = builder.Configuration.GetSection(ServiceBusOptions.SectionName).Get<ServiceBusOptions>() ?? new ServiceBusOptions();
+
+if(serviceBusOptions.Enabled)
+{
+    builder.Services.AddSingleton(_ =>  serviceBusOptions.CreateClient());
+    builder.Services.AddSingleton<ITicketEventPublisher, ServiceBusTicketEventPublisher>();
+    builder.Services.AddHostedService<TicketEventsConsumer>();
+}
+else
+{
+    builder.Services.AddSingleton<ITicketEventPublisher, LoggingTicketEventPublisher>();
+}
 
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
 

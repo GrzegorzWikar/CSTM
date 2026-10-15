@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="CSTM API/CSTM API.csproj" />
+  <Project Path="CSTM_API.Tests/CSTM_API.Tests.csproj" />
 </Solution>
