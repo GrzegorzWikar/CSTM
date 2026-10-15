@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  SOLUTION: "CSTM API.slnx"
+  SOLUTION: backend/CSTM API.slnx
   FRONTEND_DIR: frontend
   DOTNET_VERSION: 10.0.x
   NODE_VERSION: 22
