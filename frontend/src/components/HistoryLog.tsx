@@ -46,8 +46,8 @@ export default function HistoryLog({ ticketId, users }: HistoryLogProps) {
             {history.map((entry) => (
               <li key={entry.id} className="list-group-item px-0">
                 <small className="text-muted d-block">
-                  {resolveUserEmail(users, entry.changedByUserId)} •{' '}
-                  {new Date(entry.changedAt).toLocaleString('en-GB')}
+                  {resolveUserEmail(users, entry.changeByUserId)} •{' '}
+                  {new Date(entry.changeAt).toLocaleString('en-GB')}
                 </small>
                 <div>
                   {entry.oldStatus} → {entry.newStatus}

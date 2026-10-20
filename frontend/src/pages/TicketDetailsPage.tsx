@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, type SyntheticEvent } from 'react';
+import { useEffect, useState, type SyntheticEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getTicketById, updateTicket } from '../api/TicketApi';
 import type { TicketResponse, UpdateTicketRequest } from '../types/Ticket';
@@ -31,6 +31,7 @@ export default function TicketDetailsPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [users, setUsers] = useState<UserSummary[] | null>(null);
+  const [historyVersion, setHistoryVersion] = useState(0);
 
   const loadTicket = async () => {
     setIsLoading(true);
@@ -83,6 +84,7 @@ export default function TicketDetailsPage() {
       const updated = await updateTicket(payload);
       setTicket(updated);
       setSaveSuccess(true);
+      setHistoryVersion((v) => v + 1);
     } catch {
       setSaveError('Unable to save changes.');
     } finally {
@@ -97,7 +99,7 @@ export default function TicketDetailsPage() {
   return (
     <div>
       <Link to="/" className="d-inline-block mb-3">
-        â† Back to List
+        ← Back to List
       </Link>
 
       <div className="card mb-4">
@@ -114,15 +116,15 @@ export default function TicketDetailsPage() {
           <p className="text-muted small mb-0">
             Crated at: {new Date(ticket.createdAt).toLocaleString('en-GB')}
             {ticket.updatedAt &&
-              ` â€¢ Updated at: ${new Date(ticket.updatedAt).toLocaleString('en-GB')}`}
+              ` • Updated at: ${new Date(ticket.updatedAt).toLocaleString('en-GB')}`}
             {ticket.resolvedAt &&
-              ` â€¢ Resolved at: ${new Date(ticket.resolvedAt).toLocaleString('en-GB')}`}
+              ` • Resolved at: ${new Date(ticket.resolvedAt).toLocaleString('en-GB')}`}
           </p>
           {canManage && users && (
             <p className='text-muted small mb-0'>
             Created by: {resolveUserEmail(users, ticket.createdByUserId)}
             {ticket.assignedToUserId && 
-            `â€¢ Assigned to: ${resolveUserEmail(users, ticket.assignedToUserId)}`}
+            `• Assigned to: ${resolveUserEmail(users, ticket.assignedToUserId)}`}
             </p>
           )}
         </div>
@@ -214,7 +216,7 @@ export default function TicketDetailsPage() {
             <CommentsSection ticketId={ticketId}  users={users}/>
           </div>
           <div className="col-md-5 mb-4">
-            <HistoryLog ticketId={ticketId} users={users}/>
+            <HistoryLog key={historyVersion} ticketId={ticketId} users={users}/>
           </div>
         </div>
       )}
