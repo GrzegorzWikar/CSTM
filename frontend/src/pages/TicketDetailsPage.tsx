@@ -1,4 +1,4 @@
-import { useEffect, useState, type SyntheticEvent } from 'react';
+﻿import { useEffect, useState, type SyntheticEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getTicketById, updateTicket } from '../api/TicketApi';
 import type { TicketResponse, UpdateTicketRequest } from '../types/Ticket';
@@ -97,7 +97,7 @@ export default function TicketDetailsPage() {
   return (
     <div>
       <Link to="/" className="d-inline-block mb-3">
-        ← Back to List
+        â† Back to List
       </Link>
 
       <div className="card mb-4">
@@ -114,15 +114,15 @@ export default function TicketDetailsPage() {
           <p className="text-muted small mb-0">
             Crated at: {new Date(ticket.createdAt).toLocaleString('en-GB')}
             {ticket.updatedAt &&
-              ` • Updated at: ${new Date(ticket.updatedAt).toLocaleString('en-GB')}`}
+              ` â€¢ Updated at: ${new Date(ticket.updatedAt).toLocaleString('en-GB')}`}
             {ticket.resolvedAt &&
-              ` • Resolved at: ${new Date(ticket.resolvedAt).toLocaleString('en-GB')}`}
+              ` â€¢ Resolved at: ${new Date(ticket.resolvedAt).toLocaleString('en-GB')}`}
           </p>
           {canManage && users && (
             <p className='text-muted small mb-0'>
-            Created by: {resolveUserEmail(users, ticket.createByUserId)}
+            Created by: {resolveUserEmail(users, ticket.createdByUserId)}
             {ticket.assignedToUserId && 
-            `• Assigned to: ${resolveUserEmail(users, ticket.assignedToUserId)}`}
+            `â€¢ Assigned to: ${resolveUserEmail(users, ticket.assignedToUserId)}`}
             </p>
           )}
         </div>

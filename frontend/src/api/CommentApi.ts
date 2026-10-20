@@ -1,4 +1,4 @@
-import axiosClient from "./axiosClient";
+﻿import axiosClient from "./axiosClient";
 import type { CreateTicketCommentRequest, TicketCommentResponse, UpdateTicketCommentRequest } from "../types/Comment";
 
 export const getComments = async (ticketId: number): Promise<TicketCommentResponse[]> => {
@@ -7,7 +7,7 @@ export const getComments = async (ticketId: number): Promise<TicketCommentRespon
 };
 
 export const createComment = async (ticketId: number, data: CreateTicketCommentRequest): Promise<TicketCommentResponse> => {
-    const response = await axiosClient.post<TicketCommentResponse>(`/api/Ticket/${ticketId}/comments`, data);
+    const response = await axiosClient.post<TicketCommentResponse>(`/api/Tickets/${ticketId}/comments`, data);
     return response.data;
 };
 

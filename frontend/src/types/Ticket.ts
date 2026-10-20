@@ -1,4 +1,4 @@
-import type { Severity, Status } from "./Enums";
+﻿import type { Severity, Status } from "./Enums";
 
 export interface TicketResponse{
     id: number;
@@ -7,7 +7,7 @@ export interface TicketResponse{
     serviceName: string;
     severity: Severity;
     status: Status;
-    createByUserId: string;
+    createdByUserId: string;
     assignedToUserId: string | null;
     createdAt: string;
     updatedAt: string | null;
@@ -35,7 +35,7 @@ export interface TicketFilterParameters {
     serviceName?: string;
     severity?: Severity;
     status?: Status;
-    createByUserId?: string;
+    createdByUserId?: string;
     assignedToUserId?: string;
     createdAtFrom?: string;
     createdAtTo?: string;
