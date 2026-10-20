@@ -20,7 +20,6 @@ param staticWebAppLocation string = 'westeurope'
 @allowed(['F1','B1'])
 param appServicePlanSku string = 'F1'
 
-@secure()
 param sqlAdminLogin string = 'cstmadmin'
 
 @secure()
@@ -133,8 +132,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-08-01-preview' = {
   properties: {
     useFreeLimit: true
     freeLimitExhaustionBehavior: 'AutoPause'
-    autoPauseDelay:15
-    maxSizeBytes:3435973868
+    maxSizeBytes:34359738368
     requestedBackupStorageRedundancy: 'Local'
   }
 }
@@ -150,7 +148,6 @@ resource serviceBus 'Microsoft.ServiceBus/namespaces@2021-11-01' = {
   }
   properties:{
     disableLocalAuth: true
-    minimumTlsVersio: '1.2'
   }
 }
 

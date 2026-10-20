@@ -28,7 +28,11 @@ var connectionString = builder.Configuration["SqlConnectionString"]
     ?? throw new InvalidOperationException(
         "There is no connection string to database. Setup ConnectionString:CSTMContext (localy) or secrets SqlConnectionString in KeyValut (Azure).");
 builder.Services.AddDbContext<ApplicationDbContext>(opt => {
-    opt.UseSqlServer(connectionString);
+    opt.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure(
+        maxRetryCount: 6,
+        maxRetryDelay: TimeSpan.FromSeconds(20),
+        errorNumbersToAdd: null
+    ));
 });
 
 builder.Services
@@ -72,13 +76,14 @@ builder.Services.AddCors(opt => {
     });
 });
 
-var app =builder.Build();
+var app = builder.Build();
 
 await IdentitySeeder.SeedRolesAsync(app.Services);
 
+await IdentitySeeder.SeedDefaultAdminAsync(app.Services, app.Configuration);
+
 if (app.Environment.IsDevelopment())
 {
-    await IdentitySeeder.SeedDefaultAdminAsync(app.Services, app.Configuration);
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
