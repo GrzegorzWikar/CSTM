@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using CSTM_API.Models;
+﻿using CSTM_API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
