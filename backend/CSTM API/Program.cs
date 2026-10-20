@@ -66,7 +66,7 @@ const string FrontendCorsPolicy = "FrontendCorsPolicy";
 builder.Services.AddCors(opt => {
     opt.AddPolicy(FrontendCorsPolicy, policy =>
     {
-        var allowedOrgins = builder.Configuration.GetSection("Cors:AllowedOrgins").Get<string[]>()
+        var allowedOrgins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
         ?? new[] { "http://localhost:5173" };
 
         policy.WithOrigins(allowedOrgins)
