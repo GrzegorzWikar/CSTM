@@ -11,10 +11,12 @@ namespace CSTM_API.Services
     public class TicketCommentService : ITicketComments
     {
         private readonly ApplicationDbContext _context;
+        private readonly ITicketHistoryService _ticketHistoryService;
         private readonly TicketCommentMapper _ticketCommentMapper;
-        public TicketCommentService(ApplicationDbContext context)
+        public TicketCommentService(ApplicationDbContext context, ITicketHistoryService ticketHistoryService)
         {
             _context = context;
+            _ticketHistoryService = ticketHistoryService;
             _ticketCommentMapper = new TicketCommentMapper();
         }
 
@@ -25,6 +27,8 @@ namespace CSTM_API.Services
             ticketComment.UserId = userId;
 
             await _context.TicketComments.AddAsync(ticketComment);
+            await _ticketHistoryService.AddCommentHistoryAsync(ticketId, userId, null, ticketComment.Content);
+
             await _context.SaveChangesAsync();
 
             return _ticketCommentMapper.MapToTicketCommentResponse(ticketComment);
@@ -37,7 +41,7 @@ namespace CSTM_API.Services
             return ticketComments.Select(_ticketCommentMapper.MapToTicketCommentResponse);
         }
 
-        public async Task<TicketCommentResponse> UpdateTicketCommentAsync(int ticketId, UpdateTicketCommentRequest updatedComment)
+        public async Task<TicketCommentResponse> UpdateTicketCommentAsync(string userId, int ticketId, UpdateTicketCommentRequest updatedComment)
         {
             TicketComment? ticketComment = await _context.TicketComments.FindAsync(updatedComment.Id);
 
@@ -46,7 +50,14 @@ namespace CSTM_API.Services
                 throw new Exception("Ticket comment not found");
             }
 
+            string oldContent = ticketComment.Content;
+
             ticketComment.Content = updatedComment.Content;
+
+            if(oldContent != ticketComment.Content)
+            {
+                await _ticketHistoryService.AddCommentHistoryAsync(ticketId, userId, oldContent, ticketComment.Content);
+            }
 
             _context.TicketComments.Update(ticketComment);
             await _context.SaveChangesAsync();

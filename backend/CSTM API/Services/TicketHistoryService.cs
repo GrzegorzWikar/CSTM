@@ -10,6 +10,7 @@ namespace CSTM_API.Services
 {
     public class TicketHistoryService : ITicketHistoryService
     {
+        private const int MaxCommentLengthInHistory = 200;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -41,6 +42,31 @@ namespace CSTM_API.Services
             _context.TicketHistories.Add(history);
 
             return Task.CompletedTask;
+        }
+
+        public Task AddCommentHistoryAsync(int ticketId, string userId, string? oldContent, string newContent)
+        {
+            var history = new TicketHistory
+            {
+                TicketId = ticketId,
+                OldStatus = $"Comment: {Shorten(oldContent)}",
+                NewStatus = $"Comment: {Shorten(newContent)}",
+                ChangeByUserId = userId,
+                ChangeAt = DateTime.UtcNow
+            };
+
+            _context.TicketHistories.Add(history);
+
+            return Task.CompletedTask;
+        }
+
+        private static string Shorten(string? content)
+        {
+            if (string.IsNullOrEmpty(content)) return string.Empty;
+
+            return content.Length <= MaxCommentLengthInHistory
+                ? content
+                : content[..MaxCommentLengthInHistory] + "...";
         }
 
         public async Task<List<TicketHistoryResponse>> GetHistoryByTicketIdAsync(int ticketId)

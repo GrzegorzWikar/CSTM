@@ -157,7 +157,9 @@ namespace CSTM_API.Controllers
         {
             try
             {
-                return Ok(await _ticketCommentsService.UpdateTicketCommentAsync(ticketId, request));
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId is null) return Unauthorized();
+                return Ok(await _ticketCommentsService.UpdateTicketCommentAsync(userId, ticketId, request));
             }
             catch (Exception) 
             {

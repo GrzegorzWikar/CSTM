@@ -9,6 +9,54 @@ interface HistoryLogProps {
   users: UserSummary[] | null;
 }
 
+const PROPERTY_LABELS: Record<string, string> = {
+  ServiceName: 'Service',
+  Severity: 'Severity',
+  Status: 'Status',
+  AssignedToUserId: 'Assigned to',
+  Comment: 'Comment'
+}
+
+interface ParsedChange{
+  property: string,
+  value: string
+}
+
+function parseChange(text: string): ParsedChange | null {
+  const match = /^([A-Za-z]+): ?([\s\S]*)$/.exec(text);
+  return match ? { property: match[1], value: match[2]} : null;
+}
+
+function formatValue(property: string, value: string, users: UserSummary[] | null): string {
+  if (property === 'AssigneToUserId') {
+    return value ?  resolveUserEmail(users, value) : 'Unassigned';
+  }
+  if(property === 'Severity' || property === 'Status'){
+    return value.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+  return value;
+}
+
+function describeChange(entry: TicketHistoryResponse, users: UserSummary[] | null): string{
+  const oldChange = parseChange(entry.oldStatus);
+  const newChange = parseChange(entry.newStatus);
+
+  if (!oldChange || !newChange || oldChange.property !== newChange.property){
+    return `${entry.oldStatus} -> ${entry.newStatus}`;
+  }
+
+  const property = newChange.property;
+
+  if (property === 'Comment'){
+    return oldChange.value === ''
+      ? `Comment added: "${newChange.value}"`
+      : `Comment edited: "${oldChange.value}" -> "${newChange.value}`;
+  }
+
+  const label = PROPERTY_LABELS[property] ?? property;
+  return `${label}: ${formatValue(property, oldChange.value, users)} -> ${formatValue(property, newChange.value, users)}`;
+}
+
 export default function HistoryLog({ ticketId, users }: HistoryLogProps) {
   const [history, setHistory] = useState<TicketHistoryResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,9 +97,7 @@ export default function HistoryLog({ ticketId, users }: HistoryLogProps) {
                   {resolveUserEmail(users, entry.changeByUserId)} •{' '}
                   {new Date(entry.changeAt).toLocaleString('en-GB')}
                 </small>
-                <div>
-                  {entry.oldStatus} → {entry.newStatus}
-                </div>
+                <div className="text-break">{describeChange(entry, users)}</div>
               </li>
             ))}
           </ul>

@@ -9,9 +9,10 @@ import LoadingSpinner from "./LoadingSpinner";
 interface CommentSectionProps {
     ticketId: number;
     users: UserSummary[] | null;
+    onChange?: () => void;
 }
 
-export default function CommentsSection({ticketId, users}: CommentSectionProps){
+export default function CommentsSection({ticketId, users, onChange}: CommentSectionProps){
     const { user } = useAuth();
     const [comments, setComments] = useState<TicketCommentResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +43,7 @@ export default function CommentsSection({ticketId, users}: CommentSectionProps){
             await createComment(ticketId, {content: newContent});
             setNewContent('');
             await loadComments();
+            onChange?.();
         }finally{
             setIsPosting(false);
         }
@@ -61,6 +63,7 @@ export default function CommentsSection({ticketId, users}: CommentSectionProps){
         await updateComment(ticketId, {id: commentId, content: editContent});
         setEditingId(null);
         await loadComments();
+        onChange?.();
     };
 
     return (

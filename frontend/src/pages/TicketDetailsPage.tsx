@@ -213,7 +213,7 @@ export default function TicketDetailsPage() {
       {canManage && (
         <div className="row">
           <div className="col-md-7 mb-4">
-            <CommentsSection ticketId={ticketId}  users={users}/>
+            <CommentsSection onChange={() => setHistoryVersion((v) => v + 1)} ticketId={ticketId}  users={users}/>
           </div>
           <div className="col-md-5 mb-4">
             <HistoryLog key={historyVersion} ticketId={ticketId} users={users}/>
