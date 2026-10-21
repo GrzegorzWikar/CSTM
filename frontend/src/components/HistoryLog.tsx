@@ -28,7 +28,7 @@ function parseChange(text: string): ParsedChange | null {
 }
 
 function formatValue(property: string, value: string, users: UserSummary[] | null): string {
-  if (property === 'AssigneToUserId') {
+  if (property === 'AssignedToUserId') {
     return value ?  resolveUserEmail(users, value) : 'Unassigned';
   }
   if(property === 'Severity' || property === 'Status'){
@@ -50,7 +50,7 @@ function describeChange(entry: TicketHistoryResponse, users: UserSummary[] | nul
   if (property === 'Comment'){
     return oldChange.value === ''
       ? `Comment added: "${newChange.value}"`
-      : `Comment edited: "${oldChange.value}" -> "${newChange.value}`;
+      : `Comment edited: "${oldChange.value}" -> "${newChange.value}"`;
   }
 
   const label = PROPERTY_LABELS[property] ?? property;

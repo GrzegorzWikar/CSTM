@@ -72,7 +72,7 @@ export default function CommentsSection({ticketId, users, onChange}: CommentSect
                 <h2 className="h5 mb-3">Comments</h2>
                 <form onSubmit={handleAddComment} className="mb-3">
                     <textarea className="form-control mb-2" rows={2} placeholder="Add Comment" value={newContent} onChange={(e) => setNewContent(e.target.value)} />
-                    <button type="submit" className="btn btn-ptimary btn-sm" disabled={isPosting}>
+                    <button type="submit" className="btn btn-primary btn-sm" disabled={isPosting}>
                         {isPosting ? "Adding..." : "Add comment"}
                     </button>
                 </form>
