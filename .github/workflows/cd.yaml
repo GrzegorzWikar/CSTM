@@ -64,7 +64,7 @@ jobs:
       - name: Build (tsc + vite)
         run: npm run build
         working-directory: ${{ env.FRONTEND_DIR }}
-      - uses: actions/upload-artifact@4
+      - uses: actions/upload-artifact@v4
         with:
           name: web
           path: ${{ env.FRONTEND_DIR }}/dist
