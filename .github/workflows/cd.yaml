@@ -36,11 +36,11 @@ jobs:
       - name: Restore
         run: dotnet restore "${{ env.SOLUTION }}"
       - name: Build
-        run: dotnet build "${{ env.SOLUTION }}" --no-restore --configuration Relese
+        run: dotnet build "${{ env.SOLUTION }}" --no-restore --configuration Release
       - name: Test
-        run: dotnet test "${{ env.SOLUTION }}" --no-buld --coniguraion Relese
+        run: dotnet test "${{ env.SOLUTION }}" --no-buld --coniguraion Release
       - name: Publish
-        run: dotnet publish "${{ env.SOLUTION }}" --no-build --configuration Relese --output "${{ runner.temp }}/api"
+        run: dotnet publish "${{ env.SOLUTION }}" --no-build --configuration Release --output "${{ runner.temp }}/api"
       - uses: actions/upload-artifact@v4
         with:
           name: api
