@@ -16,7 +16,7 @@ env:
   AZURE_WEBAPP_NAME: cstm-vkqwu2zyqb4h6-api
   API_URL: https://cstm-vkqwu2zyqb4h6-api.azurewebsites.net
 
-permission:
+permissions:
   contents: read
 
 concurrency:
@@ -78,7 +78,7 @@ jobs:
     environment:
       name: production
       url: ${{ env.API_URL }}
-    permission:
+    permissions:
       id-token: write
       contents: read
     steps:
