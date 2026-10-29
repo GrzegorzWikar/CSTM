@@ -1,4 +1,6 @@
-﻿using CSTM_API.Models;
+﻿using CSTM_API.Data;
+using CSTM_API.Models;
+using CSTM_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +17,12 @@ namespace CSTM_API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public AccountController(UserManager<ApplicationUser> userManager)
+        public AccountController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
 
@@ -84,25 +88,71 @@ namespace CSTM_API.Controllers
                                 .OrderBy(u => u.Email)
                                 .Select(u => new {id = u.Id, email = u.Email})
                                 .ToListAsync();
+            
+            var roleRows = await (from ur in _context.UserRoles
+                                    join r in _context.Roles on ur.RoleId equals r.Id
+                                    select new {ur.UserId, RoleName = r.Name})
+                                    .ToListAsync();
+
+            var rolesByUser = roleRows
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName ?? string.Empty).ToArray());
+                 
+            var result = new List<object>(users.Count);
+            foreach (var u in users)
+            {
+                rolesByUser.TryGetValue(u.id, out var roles);
+                result.Add(new { id = u.id, email = u.email, roles = roles ?? Array.Empty<string>()});
+            }
+
+
             return Ok(users);
         }
 
-        [Authorize(Roles="Admin")]
+        [Authorize(Roles="Support,Admin")]
         [HttpPost("assign-role")]
         public async Task<ActionResult> AssignRole(AssignRoleRequest request)
         {
-            var validRoles = new[] { "User", "Support", "Admin" };
-            if (!validRoles.Contains(request.Role)) 
+            var actorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (actorId is null) return Unauthorized();
+
+            var actor = await _userManager.FindByIdAsync(actorId);
+            if(actor is null) return Unauthorized();
+
+            var target = await _userManager.FindByIdAsync(request.UserId);
+            if (target is null) return NotFound("User not found");
+
+            var actorRoles = await _userManager.GetRolesAsync(actor);
+            var targetRoles = await _userManager.GetRolesAsync(target);
+
+            var decision = RoleChangePolicy.Evaluate(actorRoles, actor.Id, target.Id, targetRoles, request.Role);
+
+            if (decision == RoleChangeDecision.InvalidRole)
             {
-                return BadRequest($"Bad role. Allowed are: {validRoles}");
+                return BadRequest($"Bad role. Allowed are: {string.Join(",", RoleChangePolicy.AllRoles)}");
             }
 
-            var user = await _userManager.FindByIdAsync(request.UserId);
-            if (user is null) return NotFound("User not found");
+            if (decision == RoleChangeDecision.CannotChangeOwnRole)
+            {
+                return BadRequest("You cannot change own role.");
+            }
 
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            await _userManager.AddToRoleAsync(user, request.Role);
+            if (decision == RoleChangeDecision.Forbidden)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, "You are not allowed to make this role change.");
+            }
+
+            var removeResult = await _userManager.RemoveFromRolesAsync(target, targetRoles);
+            if (!removeResult.Succeeded)
+            {
+                return Problem("Could not remove the previous role.");
+            }
+
+            var addResult = await _userManager.AddToRoleAsync(target, request.Role);
+            if (!addResult.Succeeded)
+            {
+                return Problem("Could not assign the new role.");
+            }
 
             return Ok();
         }
